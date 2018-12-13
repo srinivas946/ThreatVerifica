@@ -1,0 +1,27 @@
+{% extends 'check/base.html' %}
+{% block nav %}
+<!-- NAVIGATION BAR -->
+<ul class="nav navbar-nav">
+    <li><a href="{%url 'check:index' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    <li><a href="{%url 'check:ibm' %}">IBMXForce</a></li>
+    <li><a href="{%url 'check:ipvoid' %}">IPVoid</a></li>
+    <li><a href="{%url 'check:virustotal' %}">Virus Total</a></li>
+    <li><a href="{%url 'check:iplocation' %}">IPLocation</a></li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li><a href="{%url 'check:report' %}"><span class="glyphicon glyphicon-file"></span> Report</a></li>
+    <li><a href="{%url 'check:settings' %}"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+</ul>
+{% endblock %}
+
+<!-- BODY CONTENT -->
+{% block content %}
+<br>
+<div class="container">
+    <div class="jomborton text-center">
+        <h1>Service Unavailable</h1>
+        <h4>Request Search is unavailable in {{ data }}</h4>
+        <img src="http://images.easyfreeclipart.com/105/confused-smiley-facebook-symbols-and-chat-emoticons-105741.png" width="400" height="400">
+    </div>
+</div>
+{% endblock %}

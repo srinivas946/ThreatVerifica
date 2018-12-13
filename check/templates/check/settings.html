@@ -1,0 +1,113 @@
+{% extends 'check/base.html' %}
+
+<!-- NAVIGATION BAR -->
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li><a href="{%url 'check:index' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    <li><a href="{%url 'check:ibm' %}">IBMXForce</a></li>
+    <li><a href="{%url 'check:ipvoid' %}">IPVoid</a></li>
+    <li><a href="{%url 'check:virustotal' %}">Virus Total</a></li>
+    <li><a href="{%url 'check:iplocation' %}">IPLocation</a></li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li><a href="{%url 'check:report' %}"><span class="glyphicon glyphicon-file"></span> Report</a></li>
+    <li class="active"><a href="{%url 'check:settings' %}"><span class="glyphicon glyphicon-cog"></span> Settings</a>
+    </li>
+</ul>
+{% endblock %}
+
+<!-- BODY CONTENT -->
+{% block content %}
+<div class="container">
+
+    <!-- PAGE HEADING -->
+    <div class="jomborton">
+        <h2>Add API Keys! Start Work</h2>
+        <p>Get Public API Keys from IBMXForce and VirusTotal</p>
+        <button class="btn btn-warning"><a href="https://exchange.xforce.ibmcloud.com/" target="_blank" style="color:white;text-decoration:none;">Get IBM API Keys</a> </button>
+        <button class="btn btn-warning"><a href="https://www.virustotal.com/#/home/upload" target="_blank" style="color:white;text-decoration:none;">Get Virus Total API Keys</a> </button>
+    </div>
+    <br>
+
+    <!-- DISPLAY POPUP FOR CONFORMATION OF IBM AND VIRUSTOTAL KEYS STORE IN DATABASE-->
+    {% for key, value in alert.items %}
+        {% if value == "True" %}
+            <script>alert('API KEYs Stored in Database Successfully')</script>
+        {% endif %}
+    {% endfor %}
+    <div class="row">
+
+        <!-- FROM TO STORE THE API KEYS OF IBM X FORCE  -->
+        <div class="col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">IBM X Force API Keys</div>
+                <div class="panel-body">
+                    <button type="button" class="btn btn-danger">Warning : Public API Key has a Limit of 5000 API Calls / Month</button>
+                    <br/><br/>
+                    <form method="post" action="{%url 'check:ibmapi' %}">{% csrf_token %}
+                        <div class="form-group">
+                            <label for="key">Enter API Key</label><br/>
+                            <input type="password" name="apikey" class="form-control" value="" id="key">
+                            <br/>
+                        </div>
+                        <div class="form-group">
+                            <label for="val">Enter API Password</label><br/>
+                            <input type="password" name="apipass" class="form-control" value="" id="val"><br/>
+                        </div>
+                        <script>
+                            function myFunction1() {
+                              var x = document.getElementById("key");
+                              var y = document.getElementById("val");
+                              if (x.type === "password" && y.type == "password") {
+                                x.type = "text";
+                                y.type = "text";
+                              } else {
+                                x.type = "password";
+                                y.type = "password";
+                              }
+                            }
+                        </script>
+                        <div class="checkbox">
+                            <label><input type="checkbox" onclick="myFunction1()"> show keys</label>
+                            <label><input type="checkbox" name="ibm"> Add to Database</label>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add Keys</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM TO STORE THE API KEYS OF VIRUSTOTAL -->
+        <div class="col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Virus Total API Key</div>
+                <div class="panel-body">
+                    <button type="button" class="btn btn-danger">Warning : Public API Keys has a limit of 4 API Calls / Minute</button>
+                    <br/><br/>
+                    <form method="post" action="{%url 'check:virustotalapi' %}">{% csrf_token %}
+                        <div class="from-group">
+                            <label for="vkey">Enter API Key</label><br/>
+                            <input type="password" class="form-control" name="virustotal_api_key" id="vkey">
+                        </div>
+                        <script>
+                            function myFunction2() {
+                              var x = document.getElementById("vkey");
+                              if (x.type === "password") {
+                                x.type = "text";
+                              } else {
+                                x.type = "password";
+                              }
+                            }
+                        </script>
+                        <div class="checkbox">
+                            <label><input type="checkbox" onclick="myFunction2()"> Show Key</label>
+                            <label><input type="checkbox" name="virustotal"> Add to Database</label>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add Key</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'check/base.html' %}
+{% load myfilters %}
+
+<!-- NAVIGATION BAR -->
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li><a href="{%url 'check:index' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    <li><a href="{%url 'check:ibm' %}">IBMXForce</a> </li>
+    <li><a href="{%url 'check:ipvoid' %}">IPVoid</a> </li>
+    <li><a href="{%url 'check:virustotal' %}">Virus Total</a> </li>
+    <li class="active"><a href="{%url 'check:iplocation' %}">IPLocation</a> </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li><a href="{%url 'check:report' %}"><span class="glyphicon glyphicon-file"></span> Report</a></li>
+    <li><a href="{%url 'check:settings' %}"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+</ul>
+{% endblock %}
+
+<!-- BODY CONTENT -->
+{% block content %}
+<br>
+<div class="container">
+
+    <!-- PAGE HEADING -->
+    <div class="jomborton text-center">
+        <h1>IPLocation</h1>
+        <p>Best Website to provide IPAddress Location </p>
+         <br>
+        <button class="btn btn-success" data-toggle="collapse" data-target="#single">Check Location</button>
+        <button class="btn btn-danger" data-toggle="collapse" data-target="#multiple">Bulk Check</button>
+    </div>
+    <br>
+
+    <!-- SINGLE IPLOCATION CHECK -->
+    <form id="single" class="form-group text-center" action="{%url 'check:iplocation' %}" method="post" hidden>
+        {% csrf_token %}
+        <label for="data">Enter IPAddress</label>
+        <div class="form-inline">
+            <input type="text" class="form-control" name="single" id="data">
+            <button type="submit" class="btn btn-primary">Check</button>
+        </div>
+    </form>
+
+    <!-- BULK IPLOCATION CHECK -->
+    <form id="multiple" class="form-group text-center" action="{%url 'check:iplocation' %}" method="post" hidden>
+        {% csrf_token %}
+        <label for="data">Enter IPAddress</label>
+        <div class="form-group">
+            <textarea type="text" class="form-control" cols="30" rows="10" name="bulk" id="muldata"></textarea><br>
+            <button type="submit" class="btn btn-primary">Check</button>
+        </div>
+    </form>
+</div>
+<br>
+
+<!-- RESULTS FOR GIVEN DATA -->
+<div class="container">
+    <div class="row">
+
+        <!-- SINGLE IPLOCATION CHECK -->
+        {% if reputation.ipvoid.items|is_len %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">IPLocation Check</div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    {% for key, value in reputation.ipvoid.items %}
+                    <tr>
+                        <td>{{key}}</td>
+                        <td>{{value}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <!-- BULK IPLOCATION CHECK -->
+        {% elif reputation.ipvoid_bulk.items|is_len %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">IPLocaiton Bulk Check</div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <th>IPADDRESS</th>
+                        <th>COUNTRY</th>
+                        <th>CITY</th>
+                        <th>REGION</th>
+                        <th>ISP</th>
+                        <th>LATITUDE</th>
+                        <th>LONGITUDE</th>
+                    </thead>
+                    <tbody>
+                        {% for key, value in reputation.ipvoid_bulk.items %}
+                        <tr>
+                            {% for k, v in value.items %}
+                                <td>{{v}}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

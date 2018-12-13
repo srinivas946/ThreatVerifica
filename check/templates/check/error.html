@@ -1,0 +1,28 @@
+{% extends 'check/base.html' %}
+
+<!-- NAVIGATION BAR -->
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li><a href="{%url 'check:index' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    <li><a href="{%url 'check:ibm' %}">IBMXForce</a></li>
+    <li><a href="{%url 'check:ipvoid' %}">IPVoid</a></li>
+    <li><a href="{%url 'check:virustotal' %}">Virus Total</a></li>
+    <li><a href="{%url 'check:iplocation' %}">IPLocation</a></li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li><a href="{%url 'check:report' %}"><span class="glyphicon glyphicon-file"></span> Report</a></li>
+    <li><a href="{%url 'check:settings' %}"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+</ul>
+{% endblock %}
+
+<!-- BODY CONTENT -->
+{% block content %}
+<br>
+<div class="container text-center">
+    <div class="jomborton">
+        <h1>PAGE 404</h1>
+        <p>OOPS! Reqested Data Not Found</p>
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxPMUvgvOhV_g-_9r67z4HmSUftM1xTDABnYil_HaYN6UDrE-d" width="300" height="300">
+    </div>
+</div>
+{% endblock %}

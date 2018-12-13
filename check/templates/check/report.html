@@ -1,0 +1,33 @@
+{% extends 'check/base.html' %}
+<!-- NAVIGATION BAR -->
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li><a href="{%url 'check:index' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    <li><a href="{%url 'check:ibm' %}">IBMXForce</a> </li>
+    <li><a href="{%url 'check:ipvoid' %}">IPVoid</a> </li>
+    <li><a href="{%url 'check:iplocation' %}">IPLocation</a> </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li class="active"><a href="{%url 'check:report' %}"><span class="glyphicon glyphicon-file"></span> Report</a></li>
+    <li><a href="{%url 'check:settings' %}"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+</ul>
+{% endblock %}
+
+<!-- BODY CONTENT -->
+{% block content %}
+<br>
+<div class="container">
+    <div class="jomborton">
+        <h1>Generate Report</h1>
+        <h4>Reports Generated For IPAddress / Domain / Url / Hash</h4>
+        <!-- GENERATE REPORT FOR IPADDRESS / DOMAIN / URL /HASH -->
+        <form class="form-inline" action="{%url 'check:report' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" name="q" class="form-control">
+                <button type="submit" class="btn btn-primary">Generate</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

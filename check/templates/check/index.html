@@ -1,0 +1,41 @@
+{% extends 'check/base.html' %}
+    {% block nav %}
+    <ul class="nav navbar-nav">
+        <li class="active"><a href="{%url 'check:index' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+        <li><a href="{%url 'check:ibm' %}">IBMXForce</a> </li>
+        <li><a href="{%url 'check:ipvoid' %}">IPVoid</a> </li>
+        <li><a href="{%url 'check:virustotal' %}">Virus Total</a> </li>
+        <li><a href="{%url 'check:iplocation' %}">IPLocation</a> </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li><a href="{%url 'check:report' %}"><span class="glyphicon glyphicon-file"></span> Report</a></li>
+        <li><a href="{%url 'check:settings' %}"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+    </ul>
+    {% endblock %}
+    {% block content %}
+    <div class="container">
+        <div class="jumborton">
+            <h1>Threat Verifica</h1>
+            <p>Check the Malicious IPAddress, Domains, Urls, Hashes and File Scan from Popular Website</p>
+            <img src="http://www.appincoimbatore.com/reimages/appin-information-security.jpg" width="1080px" height="300px">
+        </div>
+    </div>
+    <br>
+    <div class="container">
+        <form action="{%url 'check:detail' %}" method="post">
+            {% csrf_token %}
+          <div class="form-group">
+            <label for="data">Enter IPAddress / Domain / Url / Hash</label>
+            <input type="text" class="form-control" id="data" name="q">
+          </div>
+          <div class="checkbox">
+            <label><input type="checkbox" name="checks[]" value="1"> IBMXForce</label>
+            <label><input type="checkbox" name="checks[]" value="2"> IPVoid</label>
+            <label><input type="checkbox" name="checks[]" value="3"> IPLocation</label>
+            <label><input type="checkbox" name="checks[]" value="4"> VirusTotal</label>
+            <label><input type="checkbox" name="checks[]" value="5"> All Websites</label>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+{% endblock %}

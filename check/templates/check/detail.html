@@ -1,0 +1,169 @@
+{% extends 'check/base.html' %}
+{% load myfilters %}
+
+<!-- NAVIGATION BAR -->
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li><a href="{%url 'check:index' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    <li><a href="{%url 'check:ibm' %}">IBMXForce</a> </li>
+    <li><a href="{%url 'check:ipvoid' %}">IPVoid</a> </li>
+    <li><a href="{%url 'check:virustotal' %}">Virus Total</a> </li>
+    <li><a href="{%url 'check:iplocation' %}">IPLocation</a> </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li><a href="{%url 'check:report' %}"><span class="glyphicon glyphicon-file"></span> Report</a></li>
+    <li><a href="{%url 'check:settings' %}"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+</ul>
+{% endblock %}
+
+<!-- BODY CONTENT -->
+{% block content %}
+<br>
+<div class="container">
+
+    <!-- HEADER CONTENT -->
+    <div class="jombroton text-center">
+        <h1>Quick Check</h1>
+        <h4>IPAddress / Domain / Url / Hash</h4>
+
+        <!-- FORM DATA TO CHECK THE MALICIOUS ACTIVITY OF IPADDRESS / DOMAIN / URL / HASH -->
+        <form action="{%url 'check:detail'%}" class="form-inline" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" name="q" class="form-control">
+                <button type="submit" class="btn btn-warning">Check</button>
+            </div>
+            <br><br>
+            <div class="checkbox">
+                <label><input type="checkbox" name="checks[]" value="1"> IBMXForce</label>
+                <label><input type="checkbox" name="checks[]" value="2"> IPVoid</label>
+                <label><input type="checkbox" name="checks[]" value="3"> IPLocation</label>
+                <label><input type="checkbox" name="checks[]" value="4"> VirusTotal</label>
+                <label><input type="checkbox" name="checks[]" value="5"> All Websites</label>
+          </div>
+        </form>
+    </div>
+</div>
+<br><br>
+
+<!-- RESULT FOR THE GIVEN DATA (IPADDRESS / DOMAIN / URL / HASH) -->
+    <div class="container">
+        <div class="row">
+
+            <!-- RESULT FOR IBM -->
+            {% if reputation.ibm.items|is_len %}
+                {% if '1' in reputation.check %}
+                    <div class="col-md-6">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">IBMXForce</div>
+                                <div class="panel-body">
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                        {% for key, value in reputation.ibm.items %}
+                                        <tr>
+                                           <td>{{ key }}</td><td>{{ value }}</td>
+                                            {% if key == 'SCORE' and value|ifinlist:"0, 1, 2, 3, 4" %}
+                                                <span><button type="button" class="btn btn-success">Safe</button> </span>
+                                            {% elif key == 'SCORE' and value|ifinlist:"5, 6, 7, 8, 9, 10" %}
+                                                <span><button type="button" class="btn btn-danger">Malicious</button> </span>
+                                            {% endif %}
+                                            {% if key == 'RISK' and value|is_risk %}
+                                                <span><button type="button" class="btn btn-danger">Malicious</button> </span>
+                                            {% elif key == 'RISK' %}
+                                                <span><button type="button" class="btn btn-success">Safe</button> </span>
+                                            {% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- RESULTS FOR IPVOID -->
+            {% if reputation.ipv.items|is_len %}
+                {% if '2' in reputation.check %}
+                    <div class="col-md-6">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">IPVoid</div>
+                                <div class="panel-body">
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                        {% for key, value in reputation.ipv.items %}
+                                        <tr>
+                                           <td>{{ key }}</td><td>{{ value }}</td>
+                                            {% if key == 'SCORE' and value|ifinlist:"0, 1, 2, 3, 4, 5"%}
+                                                <span><button type="button" class="btn btn-success">Safe</button> </span>
+                                            {% elif key == 'SCORE' %}
+                                                <span><button type="button" class="btn btn-danger">Malicious</button> </span>
+                                            {% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- RESULTS FOR IPLOCATION -->
+            <div class="row">
+            {% if reputation.iploc.items|is_len %}
+                {% if '3' in reputation.check %}
+                    <div class="col-md-6">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">IPLocation</div>
+                            <div class="panel-body">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                    {% for key, value in reputation.iploc.items %}
+                                    <tr>
+                                       <td>{{ key }}</td><td>{{ value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+                <!-- RESULTS FOR VIRUSTOTAL -->
+            {% if reputation.virustotal.items|is_len %}
+                {% if '4' in reputation.check %}
+                <div class="col-md-6">
+                    <div class="panel panel-primary" style="overflow:auto">
+                        <div class="panel-heading">VirusTotal</div>
+                        <div class="panel-body">
+                            <table class="table table-bordered">
+                                <tbody>
+                                {% for key, value in reputation.virustotal.items %}
+                                <tr>
+                                    <td>{{ key }}</td>
+                                    {% if key == 'SCORE' and value|check_score %}
+                                        <span><button class="btn btn-danger">Malicious</button> </span>
+                                    {% elif key == 'SCORE' %}
+                                        <span><button class="btn btn-success">Safe</button> </span>
+                                    {% endif %}
+                                    {% if key == 'LINK'%}
+                                        <td><a href='{{ value }}'>Link To VirusTotal</a></td>
+                                    {%else%}
+                                     <td>{{ value }}</td>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

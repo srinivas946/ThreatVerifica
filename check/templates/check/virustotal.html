@@ -1,0 +1,156 @@
+{% extends 'check/base.html' %}
+{% load myfilters %}
+
+<!-- NAVIGATION BAR -->
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li><a href="{%url 'check:index' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    <li><a href="{%url 'check:ibm' %}">IBMXForce</a></li>
+    <li><a href="{%url 'check:ipvoid' %}">IPVoid</a></li>
+    <li class="active"><a href="{%url 'check:virustotal' %}">Virus Total</a></li>
+    <li><a href="{%url 'check:iplocation' %}">IPLocation</a></li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li><a href="{%url 'check:report' %}"><span class="glyphicon glyphicon-file"></span> Report</a></li>
+    <li><a href="{%url 'check:settings' %}"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+</ul>
+{% endblock %}
+
+<!-- BODY CONTENT -->
+{% block content %}
+<br>
+<br>
+<div class="container">
+
+    <!-- PAGE CONTENT -->
+    <div class="jomborton text-center">
+        <h1>Virus Total</h1>
+        <p>Best Website to Capture the Complete Information of URLs, Hashes and FileScans</p>
+        <br>
+        <button class="btn btn-danger" data-toggle="collapse" data-target="#single">Single Check</button>
+        <button class="btn btn-success" data-toggle="collapse" data-target="#multiple">Bulk Check</button>
+        <button class="btn btn-warning" data-toggle="collapse" data-target="#csv">Bulk Check using csv</button>
+    </div>
+    <br>
+
+    <!-- FORM TO CHECK SINGEL URL / HASH -->
+    <form id="single" class="form-group text-center" action="{%url 'check:virustotal' %}" method="post" hidden>
+        {% csrf_token %}
+        <label for="data">Enter Url / Hash </label>
+        <div class="form-inline">
+            <input type="text" class="form-control" name="single" id="data">
+            <button type="submit" class="btn btn-primary">Check</button>
+        </div>
+    </form>
+    <br>
+
+    <!-- FORM TO CHECK BULK URL / HASH -->
+    <form id="multiple" class="form-group text-center" action="{%url 'check:virustotal' %}" method="post" hidden>
+        {% csrf_token %}
+        <label for="bulk">Enter Url / Hash in bulk</label>
+        <div class="form-inline">
+            <textarea type="text" class="form-control" rows="10" cols="50" name="bulkdata[]"
+                      id="bulk"></textarea><br><br>
+            <button type="submit" class="btn btn-primary">Check</button>
+        </div>
+    </form>
+    <br>
+
+    <!-- FORM TO UPLOAD CSV FILE TO CHECK BULK URL / HASH -->
+    <form id="csv" class="form-group text-center" action="{%url 'check:virustotal' %}" method="post" enctype="multipart/form-data" hidden>
+        {% csrf_token %}
+        <label for="filedata">Upload file to check bulk data (only csv format is allowed)</label>
+        <div class="form-inline">
+            <input type="file" class="form-control" name="upload" id="filedata">
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+    </form>
+</div>
+
+<!-- RESULT FOR THE GIVEN DATA -->
+<div class="container">
+    <div class="row">
+
+        <!-- DISPLAY TO USER WHEN UPLOADED FILE IS READY TO DOWNLOAD -->
+        {% for key, file in reputation.items %}
+        {% if key == 'virustotal_file' %}
+        <div class="holder">
+            <div class="jomborton text-center">
+                <h4>Reputation Check is done for the Uploaded file</h4>
+                <p>Download the File </p>
+                <a href="{{file}}" download><img src="https://cdn0.iconfinder.com/data/icons/coding-files-icons/110/Csv-File-512.png" width="100" height="100"></a>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <!-- SINGLE URL / HASH CHECK RESULTS -->
+        {% if reputation.virustotal.items|is_len %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">VirusTotal Single Check</div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <tbody>
+                    {% for key, value in reputation.virustotal.items %}
+                    <tr>
+                        <td>{{key}}</td>
+                        {% if key == 'LINK' %}
+                        <td><a href="{{value}}">Link To VirusTotal</a></td>
+                        {% else %}
+                        <td>{{ value }}</td>
+                        {% endif %}
+                        {% if key == 'SCORE' and value|check_score %}
+                        <span><button class="btn btn-danger">Malicious</button> </span>
+                        {% elif key == 'SCORE' %}
+                        <span><button class="btn btn-success">Safe</button> </span>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BULK URL / HASH CHECK RESULTS -->
+        {% elif reputation.virustotal_bulk.items|is_len %}
+        <div class="panel panel-primary" style="overflow:auto">
+            <div class="panel-heading">Virus Total Bulk Check</div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <th>HASH</th>
+                        <th>SCAN_ID</th>
+                        <th>SCORE</th>
+                        <th>STATUS</th>
+                        <th>MD5</th>
+                        <th>SHA256</th>
+                        <th>SHA1</th>
+                        <th>LINK</th>
+                        <th>GO TO WEBSITE</th>
+                        <th>BLACKLISTED SITES</th>
+                    </thead>
+                    {% for key, value in reputation.virustotal_bulk.items %}
+                    <tr>
+                        {% for k, v in value.items %}
+                        <!--<td>{{v}}</td>-->
+                        {% if k == 'SCORE' and v|check_score %}
+                        <td><button class="btn btn-danger">Malicious</button> </td>
+                        {% elif k == 'SCORE' %}
+                        <td><button class="btn btn-success">Safe</button> </td>
+                        {% endif %}
+                        {% if k == 'LINK' %}
+                        <td>{{v}}</td>
+                        <td><button class="btn btn-warning"><a href="{{v}}">Link To VirusTotal</a> </button> </td>
+                        {% else %}
+                        <td>{{v}}</td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

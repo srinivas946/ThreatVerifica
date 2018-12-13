@@ -1,0 +1,154 @@
+{% extends 'check/base.html' %}
+{% load myfilters %}
+<!-- NAVIGATION BAR -->
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li><a href="{%url 'check:index' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    <li class="active"><a href="{%url 'check:ibm' %}">IBMXForce</a> </li>
+    <li><a href="{%url 'check:ipvoid' %}">IPVoid</a> </li>
+    <li><a href="{%url 'check:virustotal' %}">Virus Total</a> </li>
+    <li><a href="{%url 'check:iplocation' %}">IPLocation</a> </li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+    <li><a href="{%url 'check:report' %}"><span class="glyphicon glyphicon-file"></span> Report</a></li>
+    <li><a href="{%url 'check:settings' %}"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+</ul>
+{% endblock %}
+
+<!-- BODY CONTENT -->
+{% block content %}
+<br>
+<div class="container text-center">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="container_right">
+
+                <!--HEADING FOR THE PAGE-->
+                <div class="jomborton text-center">
+                    <h1>IBMXForce</h1>
+                    <p>Research, Collaborate and Act on threat intelligence</p>
+                    <br>
+                    <button class="btn btn-danger" data-toggle="collapse" data-target="#single">Single Check</button>
+                    <button class="btn btn-success" data-toggle="collapse" data-target="#multiple">Bulk Check</button>
+                    <button class="btn btn-warning" data-toggle="collapse" data-target="#csv">Bulk Check using csv</button>
+                </div>
+                <br>
+
+                <!--SINGLE CHECK FORM-->
+                <form id="single" class="form-group" action="{% url 'check:ibm' %}" method="post" hidden>
+                    {% csrf_token %}
+                    <label for="data">Enter IPAddress / Domain / Url / Hash</label>
+                    <div class="form-inline">
+                        <input type="text" class="form-control" name="Singledata" id="data">
+                        <button type="submit" class="btn btn-primary">Check</button>
+                    </div>
+                </form>
+                <br>
+
+                <!--MULTICHECK FORM-->
+                <form id="multiple" class="form-group" action="{% url 'check:ibm' %}" method="post" hidden>
+                    {% csrf_token %}
+                    <label for="bulk">Enter IPAddress / Domain / Url / Hash in Bulk</label>
+                    <div class="form-inline">
+                        <textarea class="form-control" rows="10" cols="50" name="bulk[]" id="bulk"></textarea><br><br>
+                        <button type="submit" class="btn btn-primary">Check</button>
+                    </div>
+                </form>
+                <br>
+
+                <!--FILE UPLOAD FOR BULK CHECK-->
+                <form id="csv" class="form-group" action="{%url 'check:ibm' %}" method="post" enctype="multipart/form-data" hidden>
+                    {% csrf_token %}
+                    <label for="filedata">Upload file to check bulk data (only csv format is allowed)</label>
+                    <div class="form-inline">
+                        <input type="file" class="form-control" name="myfile" id="filedata">
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+                <br>
+
+                <!-- DISPLAY TO THE USER WHEN UPLOADED FILE IS READY TO DOWNLOAD -->
+                <div class="col-md-6">
+                    {% for key, file in reputation.items %}
+                        {% if key == 'ibm_file' %}
+                            <div class="container">
+                                <div class="jomborton text-center">
+                                    <h4>Reputation Check is done for the Uploaded file</h4>
+                                    <p>Download the File </p>
+                                    <a href="{{file}}" download><img src="https://cdn0.iconfinder.com/data/icons/coding-files-icons/110/Csv-File-512.png" width="100" height="100"></a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- RESULT DATA FOR SINGLE CHECK -->
+                    {% if reputation.ibm_data.items|is_len %}
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">IBMXForce Single Check</div>
+                            <div class="panel-body">
+                                <table class="table table-bordered">
+                                    {% for key, value in reputation.ibm_data.items %}
+                                        <tr>
+                                            <td>{{ key }}</td><td>{{ value }}</td>
+                                            {% if key == 'SCORE' and value|ifinlist:"0, 1, 2, 3, 4" %}
+                                                <span><button type="button" class="btn btn-success">Safe</button> </span>
+                                            {% elif key == 'SCORE' and value|ifinlist:"5, 6, 7, 8, 9, 10" %}
+                                                <span><button type="button" class="btn btn-danger">Malicious</button> </span>
+                                            {% endif %}
+                                            {% if key == 'RISK' and value|is_risk %}
+                                                <span><button type="button" class="btn btn-danger">Malicious</button> </span>
+                                            {% elif key == 'RISK' %}
+                                                <span><button type="button" class="btn btn-success">Safe</button> </span>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+
+<!-- RESULT FOR BULK CHECK -->
+<div class="row">
+    <div class="container">
+        {% if reputation.ibm_bulk.items|is_len %}
+            <div class="panel panel-primary">
+                <div class="panel-heading">IBMXForce Bulk Check</div>
+                <div class="panel-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>PARAMETER</th>
+                            <th>SCORE</th>
+                            <th>STATUS</th>
+                            <th>COUNTRY</th>
+                            <th>CATEGORY</th>
+                        </tr>
+                        {% for key, value in reputation.ibm_bulk.items %}
+                        <tr>
+                            {% for k, v in value.items %}
+                                <td>{{ v }}</td>
+                                {% if k == 'SCORE' and v|ifinlist:"0, 1, 2, 3, 4" %}
+                                    <td><button type="button" class="btn btn-success">Safe</button> </td>
+                                {% elif k == 'SCORE' and v|ifinlist:"5, 6, 7, 8, 9, 10" %}
+                                    <td><button type="button" class="btn btn-danger">Malicious</button> </td>
+                                {% endif %}
+                                {% if k == 'RISK' and v|is_risk %}
+                                    <td><button type="button" class="btn btn-danger">Malicious</button> </td>
+                                {% elif k == 'RISK' %}
+                                    <td><button type="button" class="btn btn-success">Safe</button> </td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
